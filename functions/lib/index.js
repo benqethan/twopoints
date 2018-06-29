@@ -34,7 +34,7 @@ exports.getFeed = functions.https.onRequest((req, res) => {
     // compileFeedPost().then().catch();
 });
 // async function log(message) {
-//   await admin.firestore().reference().collection('logs').add({message: message});
+//   await admin.firestore().collection('logs').add({message: message});
 // }
 // for testing only
 function doMatch() {
@@ -64,7 +64,7 @@ function getAllPosts(following, res) {
     });
 }
 function getUserPosts(userId, res) {
-    const posts = admin.firestore().reference().collection("twopoints_posts").where("ownerId", "==", userId).orderBy("timestamp");
+    const posts = admin.firestore().collection("twopoints_posts").where("ownerId", "==", userId).orderBy("timestamp");
     return posts.get()
         .then(function (querySnapshot) {
         let listOfPosts = [];
@@ -98,7 +98,7 @@ const store = admin.firestore();
 
 const addLocation = (lat, lng) =>
   store
-    .reference().collection('locations')
+    .collection('locations')
     .add({
       g10: g.encode_int(lat, lng, 24), // ~10 km radius
       g5: g.encode_int(lat, lng, 26), // ~5 km radius
@@ -111,7 +111,7 @@ const nearbyLocationsRef = (lat, lng, d = 1) => {
   const h = g.encode_int(lat, lng, bits);
 
   return store
-    .reference().collection('locations')
+    .collection('locations')
     .where(`g${d}`, '>=', g.neighbor_int(h, [-1, -1], bits))
     .where(`g${d}`, '<=', g.neighbor_int(h, [1, 1], bits));
 };
@@ -149,7 +149,7 @@ function getLocations(box) {
     const lesserGeopoint = new admin.firestore.GeoPoint(box.swCorner.latitude, box.swCorner.longitude);
     const greaterGeopoint = new admin.firestore.GeoPoint(box.neCorner.latitude, box.neCorner.longitude);
     // construct the Firestore query
-    let query = admin.firestore().reference().collection("users").where('locations', '>', lesserGeopoint).where('locations', '<', greaterGeopoint);
+    let query = admin.firestore().collection("users").where('locations', '>', lesserGeopoint).where('locations', '<', greaterGeopoint);
     // return a Promise that fulfills with the locations
     return query.get()
         .then((snapshot) => {

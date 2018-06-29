@@ -88,7 +88,7 @@ tryCreateUserRecord(BuildContext context) async {
     if (userName != null || userName.length != 0){
     // set user data under its Id
       usersDatabaseReference.set({
-//        "id": user.id,
+        "id": user.id,
         "username": userName,
         "photoUrl": user.photoUrl,
         "email": user.email,
@@ -100,7 +100,17 @@ tryCreateUserRecord(BuildContext context) async {
     }
   }
 
-  currentUserModel = new User.fromDataSnapshot(userRecord);
+  // TODO: set model from userRecord. userName is not in user object!
+  currentUserModel = new User(
+    id: user.id,
+    username: user.displayName,
+    photoUrl: user.photoUrl,
+    email: user.email,
+    displayName: user.displayName,
+    bio: "",
+    followers: {},
+    following: {}
+  );
 }
 
 Future<Null> _ensureLoggedIn(context) async {
