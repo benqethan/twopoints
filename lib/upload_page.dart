@@ -224,7 +224,7 @@ class PostForm extends StatelessWidget {
 Future<String> uploadImage(var imageFile) async {
   var uuid = new Uuid().v1();
   StorageReference ref = FirebaseStorage.instance.ref().child("post_$uuid.jpg");
-  StorageUploadTask uploadTask = ref.put(imageFile);
+  StorageUploadTask uploadTask = ref.putFile(imageFile);
   Uri downloadUrl = (await uploadTask.future).downloadUrl;
   return downloadUrl.toString();
 }

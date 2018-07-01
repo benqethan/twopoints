@@ -37,8 +37,10 @@ Future<Null> _silentLogin(BuildContext context) async {
   if (user == null) {
     user = await googleSignIn.signInSilently();
   }
+  tryCreateUserRecord(context);
   if (user == null) {
     await googleSignIn.signIn().then((_) {
+      // only create user if login first time
       tryCreateUserRecord(context);
     });
   }
@@ -54,6 +56,7 @@ Future<Null> _silentLogin(BuildContext context) async {
 
 tryCreateUserRecord(BuildContext context) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
+  print('xxxxxxxxxxxxxxxx: tryCreateUserRecord for user:');
   if (user == null) {
     return null;
   }
@@ -116,9 +119,11 @@ tryCreateUserRecord(BuildContext context) async {
 Future<Null> _ensureLoggedIn(context) async {
   user = googleSignIn.currentUser;
   if (user == null) {
+    print('xxxxxxxxxx signInSilently');
     user = await googleSignIn.signInSilently();
   }
   if (user == null) {
+    print('xxxxxxxxxx signIn');
     user = await googleSignIn.signIn();
     tryCreateUserRecord(context);
     analytics.logLogin();
@@ -128,6 +133,8 @@ Future<Null> _ensureLoggedIn(context) async {
     requestsDatabaseReference =
         databaseReference.child('twopoints_requestLocation');
   }
+
+  print('xxxxxxxxxx finished the sign in. user:' + user.displayName);
   if (await auth.currentUser() == null) {
     GoogleSignInAuthentication credentials =
     await googleSignIn.currentUser.authentication;
@@ -135,6 +142,7 @@ Future<Null> _ensureLoggedIn(context) async {
       idToken: credentials.idToken,
       accessToken: credentials.accessToken,
     );
+    print('xxxxxxxxxx finished auth.signInWithGoogle.');
   } else {
     usersDatabaseReference = databaseReference.child(user.id);
     serviceLocationsDatabaseReference =

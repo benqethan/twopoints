@@ -10,12 +10,12 @@ import 'main.dart'; //for currentuser
 import 'profile_page.dart'; //for the user class
 
 class EditProfilePage extends StatelessWidget {
-  TextEditingController nameController = new TextEditingController();
-  TextEditingController bioController = new TextEditingController();
+  final TextEditingController nameController = new TextEditingController();
+  final TextEditingController bioController = new TextEditingController();
 
-  changeProfilePhoto(BuildContext Context) {
+  changeProfilePhoto(BuildContext context) {
     return showDialog(
-      context: Context,
+      context: context,
       builder: (BuildContext context) {
         return new AlertDialog(
           title: new Text('Change Photo'),
@@ -92,7 +92,7 @@ class EditProfilePage extends StatelessWidget {
         .update({
       "displayName": nameController.text,
       "bio": bioController.text,
-      "locations": JSON.encode(mapLocation),                // can have multiple locations
+      "locations": new JsonCodec().encode(mapLocation),                // can have multiple locations
     });
 
   }

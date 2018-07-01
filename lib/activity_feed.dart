@@ -48,7 +48,7 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
 //        .getCollection("items")
 //        .orderBy("timestamp")
 //        .getDocuments();
-      await FirebaseDatabase.instance.reference()
+      FirebaseDatabase.instance.reference()
         .child('twopoints_a_feed')
         .child(currentUserModel.id)
         .onValue.listen((Event e) {
@@ -69,8 +69,7 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
 class ActivityFeedItem extends StatelessWidget {
   final String username;
   final String userId;
-  final String
-      type; // potetial types include liked photo, follow user, comment on photo
+  final String type; // potetial types include liked photo, follow user, comment on photo
   final String mediaUrl;
   final String mediaId;
   final String userProfileImg;
