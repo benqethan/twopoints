@@ -41,9 +41,9 @@ var GeoPoint = FirebaseFirestore.GeoPoint;
 // import g from 'ngeohash';
 var geoutils_1 = require("./geoutils");
 admin.initializeApp();
-exports.getFeed = functions.https.onRequest(function (req, res) {
+exports.getRequests = functions.https.onRequest(function (req, res) {
     var uid = String(req.query.uid);
-    console.log('getFeed start.................');
+    console.log('getRequests start.................');
     function compileFeedPost() {
         return __awaiter(this, void 0, void 0, function () {
             var following, listOfPosts;
@@ -124,7 +124,7 @@ function getAllPosts(following, res) {
     });
 }
 function getUserPosts(userId, res) {
-    var posts = admin.firestore().collection("twopoints_posts").where("ownerId", "==", userId).orderBy("timestamp");
+    var posts = admin.firestore().collection("twopoints_requests").where("ownerId", "==", userId).orderBy("timestamp");
     return posts.get()
         .then(function (querySnapshot) {
         var listOfPosts = [];

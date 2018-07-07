@@ -7,6 +7,7 @@ class CreateAccount extends StatefulWidget {
 
 class _CreateAccountState extends State<CreateAccount> {
   final name = new TextEditingController();
+  final phone = new TextEditingController();
 
 
   @override
@@ -44,6 +45,22 @@ class _CreateAccountState extends State<CreateAccount> {
           ),
         ),
       ),
+      new Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: new Container(
+          decoration: new BoxDecoration(
+              border: new Border.all(width: 1.0, color: Colors.black26),
+              borderRadius: new BorderRadius.circular(7.0)),
+          child: new TextField(
+            controller: phone,
+            decoration: new InputDecoration(
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.all(10.0),
+                labelText: "Phone Number",
+                labelStyle: new TextStyle(fontSize: 15.0)),
+          ),
+        ),
+      ),
       new GestureDetector(
         onTap: () {
           if (name.text == null || name.text.length == 0){
@@ -68,3 +85,4 @@ class _CreateAccountState extends State<CreateAccount> {
     ]);
   }
 }
+

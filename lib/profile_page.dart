@@ -245,7 +245,7 @@ class _ProfilePage extends State<ProfilePage> {
       Future<List<ImagePost>> getPosts() async {
         List<ImagePost> posts = [];
         var snap = await FirebaseDatabase.instance.reference()
-            .child('twopoints_posts')
+            .child('twopoints_requests')
             .orderByChild('ownerId').equalTo(profileId)
 //            .where('ownerId', isEqualTo: profileId)
             .orderByChild("timestamp")

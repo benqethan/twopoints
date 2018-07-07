@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'feed.dart';
+import 'request.dart';
 import 'upload_page.dart';
 import 'dart:async';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -18,9 +18,9 @@ final auth = FirebaseAuth.instance;
 GoogleSignInAccount user;
 
 // RDB
-var usersDatabaseReference;
-var serviceLocationsDatabaseReference;
-var requestsDatabaseReference;
+DatabaseReference usersDatabaseReference;
+DatabaseReference serviceLocationsDatabaseReference;
+DatabaseReference requestsDatabaseReference;
 final databaseReference = FirebaseDatabase.instance.reference();
 //final ref = FirebaseDatabase.instance.child('users');
 
@@ -37,13 +37,6 @@ Future<Null> _silentLogin(BuildContext context) async {
   if (user == null) {
     user = await googleSignIn.signInSilently();
   }
-  tryCreateUserRecord(context);
-  if (user == null) {
-    await googleSignIn.signIn().then((_) {
-      // only create user if login first time
-      tryCreateUserRecord(context);
-    });
-  }
 
   if (await auth.currentUser() == null && user != null) {
     GoogleSignInAuthentication credentials =
@@ -56,12 +49,18 @@ Future<Null> _silentLogin(BuildContext context) async {
 
 tryCreateUserRecord(BuildContext context) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
+
+//  var x = databaseReference.child('xxxxx');
+//  var y = x.child('y');
+//  y.set({"value": "y value"});
+
   print('xxxxxxxxxxxxxxxx: tryCreateUserRecord for user:');
   if (user == null) {
     return null;
   }
-  DataSnapshot userRecord = await databaseReference.child(user.id).once();
-  if (userRecord == null) {
+
+  var userRecord = await databaseReference.child('twopoints_userInfos').child(user.id).once();
+  if (userRecord.value == null) {
     // no user record exists, time to create
 
     String userName = await Navigator.push(
@@ -90,8 +89,8 @@ tryCreateUserRecord(BuildContext context) async {
 
     if (userName != null || userName.length != 0){
     // set user data under its Id
-      usersDatabaseReference.set({
-        "id": user.id,
+
+      databaseReference.child('twopoints_userInfos').child(user.id).set({
         "username": userName,
         "photoUrl": user.photoUrl,
         "email": user.email,
@@ -100,6 +99,7 @@ tryCreateUserRecord(BuildContext context) async {
         "followers": {},
         "following": {},
       });
+      usersDatabaseReference = databaseReference.child(user.id);
     }
   }
 
@@ -119,13 +119,13 @@ tryCreateUserRecord(BuildContext context) async {
 Future<Null> _ensureLoggedIn(context) async {
   user = googleSignIn.currentUser;
   if (user == null) {
-    print('xxxxxxxxxx signInSilently');
+    print('xxxxxxxxxx signInSilently...');
     user = await googleSignIn.signInSilently();
   }
   if (user == null) {
-    print('xxxxxxxxxx signIn');
+    print('xxxxxxxxxx signIn...');
     user = await googleSignIn.signIn();
-    tryCreateUserRecord(context);
+
     analytics.logLogin();
     usersDatabaseReference = databaseReference.child('twopoints_userInfos'); // user.id as the node key
     serviceLocationsDatabaseReference =
@@ -135,6 +135,10 @@ Future<Null> _ensureLoggedIn(context) async {
   }
 
   print('xxxxxxxxxx finished the sign in. user:' + user.displayName);
+
+  // for debug only:
+  await auth.signOut();
+
   if (await auth.currentUser() == null) {
     GoogleSignInAuthentication credentials =
     await googleSignIn.currentUser.authentication;
@@ -142,14 +146,17 @@ Future<Null> _ensureLoggedIn(context) async {
       idToken: credentials.idToken,
       accessToken: credentials.accessToken,
     );
+
     print('xxxxxxxxxx finished auth.signInWithGoogle.');
-  } else {
-    usersDatabaseReference = databaseReference.child(user.id);
-    serviceLocationsDatabaseReference =
-        databaseReference.child(user.id).child('twopoints_serviceLocation');
-    requestsDatabaseReference =
-        databaseReference.child(user.id).child('twopoints_requestLocation');
+
+    tryCreateUserRecord(context);
   }
+
+  usersDatabaseReference = databaseReference.child(user.id);
+  serviceLocationsDatabaseReference = databaseReference.child(user.id).child('twopoints_serviceLocation');
+  requestsDatabaseReference = databaseReference.child(user.id).child('twopoints_requestLocation');
+
+  print('xxxxxxxxxx finished _ensureLoggedIn.');
 }
 
 
@@ -233,7 +240,7 @@ class _HomePageState extends State<HomePage> {
               children: [
                 new Container(
                   color: Colors.white,
-                  child: new Feed(),
+                  child: new Request(),
                 ),
                 new Container(color: Colors.white, child: new SearchPage()),
                 new Container(

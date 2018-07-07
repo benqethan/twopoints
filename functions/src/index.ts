@@ -7,16 +7,20 @@ import { GeoUtils } from "./geoutils";
 admin.initializeApp();
 const utils = new GeoUtils();
 
-export const getFeed = functions.https.onRequest((req, res) => {
+// As an admin, the app has access to read and write all data, regardless of Security Rules
+let db = admin.database();
+let ref = db.ref("requests");
+
+export const getRequests = functions.https.onRequest((req, res) => {
   const uid = String(req.query.uid);
-  console.log('getFeed start.................');
+  console.log('getRequests start.................');
 
   async function compileFeedPost() {
     console.log('I am a log entry111111111111!');
 
-    const following = await getFollowing(uid, res) as any;
+//    const following = await getFollowing(uid, res) as any;
 
-    let listOfPosts = await getAllPosts(following, res);
+    let listOfPosts = await getAllPosts(0, res);
 
     listOfPosts = [].concat.apply([], listOfPosts); // flattens list
     console.log('Count of posts:' + listOfPosts.length);
@@ -27,7 +31,7 @@ export const getFeed = functions.https.onRequest((req, res) => {
     // res.send(matches);
   }
   
-  // compileFeedPost().then().catch();
+  compileFeedPost().then().catch();
 })
 
 // async function log(message) {
@@ -56,30 +60,43 @@ async function doMatch() {
 }
 
 async function getAllPosts(following, res) {
-  let listOfPosts = [];
+//  let listOfPosts = [];
 
-  for (let user in following){
+// for (let user in following){
+//   listOfPosts.push( await getCustomerRequests(following[user], res));
+// }
 
-    listOfPosts.push( await getUserPosts(following[user], res));
-  }
-  return listOfPosts; 
+  const userId = 999;
+
+  return getCustomerRequests(userId, res);
 }
 
 
-function getUserPosts(userId, res){
+function getCustomerRequests(userId, res){
+  const queryRef = ref.orderByChild("requestTimestamp").limitToLast(10);
+  let listOfRequests = [];
 
-  const posts = admin.firestore().collection("twopoints_posts").where("ownerId", "==", userId).orderBy("timestamp")
+  ref.on("value", function(querySnapshot) {
+        querySnapshot.forEach(function(reqSnapshot) {
+          listOfRequests.push(reqSnapshot.val());
+          return true;
+        });
+  });
 
-  return posts.get()
-  .then(function(querySnapshot) {
-      let listOfPosts = [];
+  return listOfRequests;
 
-      querySnapshot.forEach(function(doc) {
-          listOfPosts.push(doc.data());
-      });
-
-      return listOfPosts;
-  })
+//  const requests = admin.firestore().collection("twopoints_requests").where("userId", "==", userId).orderBy("timestamp")
+//
+//  return requests.get()
+//  .then(function(querySnapshot) {
+//      let listOfRequests = [];
+//
+//      querySnapshot.forEach(function(doc) {
+//          listOfRequests.push(doc.data());
+//      });
+//
+//      return listOfRequests;
+//  })
 }
 
 

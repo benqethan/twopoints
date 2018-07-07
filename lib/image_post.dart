@@ -94,7 +94,7 @@ class _ImagePost extends State<ImagePost> {
   );
 
   var reference = FirebaseDatabase.instance.reference().child(
-      'twopoints_posts');
+      'twopoints_requests');
 
   _ImagePost({this.mediaUrl,
     this.username,
@@ -329,7 +329,7 @@ class _ImagePost extends State<ImagePost> {
 //
 //  getImagePost() async {
 ////    var document =
-////        await FirebaseDatabase.instance.reference().child('twopoints_posts').child(id).get();
+////        await FirebaseDatabase.instance.reference().child('twopoints_requests').child(id).get();
 ////    return new ImagePost.fromDatabaseSnapshot(document);
 //  }
 //

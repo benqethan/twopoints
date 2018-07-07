@@ -231,7 +231,7 @@ Future<String> uploadImage(var imageFile) async {
 
 void postToFirebase(
     {String mediaUrl, String location, String description}) async {
-  var reference = FirebaseDatabase.instance.reference().child('twopoints_posts');
+  var reference = FirebaseDatabase.instance.reference().child('twopoints_requests');
 
   reference.push().set({
     "username": currentUserModel.username,

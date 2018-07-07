@@ -26,7 +26,7 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
   buildActivityFeed() {
     return new Container(
       child: new FutureBuilder(
-          future: getFeed(),
+          future: getRequests(),
           builder: (context, snapshot) {
             if (!snapshot.hasData)
               return new Container(
@@ -40,7 +40,7 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
     );
   }
 
-  getFeed() async {
+  getRequests() async {
     List<ActivityFeedItem> items = [];
 //    var snap = await FirebaseDatabase.instance
 //        .child('twopoints_a_feed')

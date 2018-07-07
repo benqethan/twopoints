@@ -7,23 +7,23 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class Feed extends StatefulWidget {
-  _Feed createState() => new _Feed();
+class Request extends StatefulWidget {
+  _Request createState() => new _Request();
 }
 
-class _Feed extends State<Feed> {
-  List<ImagePost> feedData;
+class _Request extends State<Request> {
+  List<ImagePost> requestsData;
 
   @override
   void initState() {
     super.initState();
-    this._loadFeed();
+    this._loadRequest();
   }
 
-  buildFeed() {
-    if (feedData != null) {
+  buildRequest() {
+    if (requestsData != null) {
       return new ListView(
-        children: feedData,
+        children: requestsData,
       );
     } else {
       return new Container(
@@ -44,13 +44,13 @@ class _Feed extends State<Feed> {
       ),
       body: new RefreshIndicator(
         onRefresh: _refresh,
-        child: buildFeed(),
+        child: buildRequest(),
       ),
     );
   }
 
   Future<Null> _refresh() async {
-    await _getFeed();
+    await _getRequests();
 
     setState(() {
 
@@ -59,62 +59,62 @@ class _Feed extends State<Feed> {
     return;
   }
 
-  _loadFeed() async {
+  _loadRequest() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String json = prefs.getString("feed");
+    String json = prefs.getString("request");
 
     if (json != null) {
       List<Map<String, dynamic>> data =
           jsonDecode(json).cast<Map<String, dynamic>>();
-      List<ImagePost> listOfPosts = _generateFeed(data);
+      List<ImagePost> listOfRequests = _generateRequests(data);
       setState(() {
-        feedData = listOfPosts;
+        requestsData = listOfRequests;
       });
     } else {
-      _getFeed();
+      _getRequests();
     }
   }
 
-  _getFeed() async {
+  _getRequests() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String userId = googleSignIn.currentUser.id.toString();
-    var url = 'https://us-central1-two-points.cloudfunctions.net/getFeed?uid=' + userId;
+    var url = 'https://us-central1-two-points.cloudfunctions.net/getRequests?uid=' + userId;
     var httpClient = new HttpClient();
 
-    List<ImagePost> listOfPosts;
+    List<ImagePost> listOfRequests;
     String result;
     try {
       var request = await httpClient.getUrl(Uri.parse(url));
       var response = await request.close();
       if (response.statusCode == HttpStatus.OK) {
         String json = await response.transform(utf8.decoder).join();
-        prefs.setString("feed", json);
+        prefs.setString("requests", json);
         List<Map<String, dynamic>> data =
         jsonDecode(json).cast<Map<String, dynamic>>();
-        listOfPosts = _generateFeed(data);
+        listOfRequests = _generateRequests(data);
       } else {
         result =
-            'Error getting a feed:\nHttp status ${response.statusCode}';
+            'Error getting a request:\nHttp status ${response.statusCode}';
       }
     } catch (exception) {
       result =
-          'Failed invoking the getFeed function. Exception: $exception';
+          'Failed invoking the getRequests function. Exception: $exception';
     }
     print(result);
 
     setState(() {
-      feedData = listOfPosts;
+      requestsData = listOfRequests;
     });
   }
 
-  List<ImagePost> _generateFeed(List<Map<String, dynamic>> feedData) {
-    List<ImagePost> listOfPosts = [];
+  List<ImagePost> _generateRequests(List<Map<String, dynamic>> requestsData) {
+    List<ImagePost> listOfRequests = [];
 
-    for (var postData in feedData) {
-      listOfPosts.add(new ImagePost.fromJSON(postData));
+    for (var postData in requestsData) {
+      listOfRequests.add(new ImagePost.fromJSON(postData));
     }
 
-    return listOfPosts;
+    return listOfRequests;
   }
 }
