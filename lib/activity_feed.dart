@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'image_post.dart'; //needed to open image when clicked
+import 'request_post.dart'; //needed to open image when clicked
 import 'main.dart'; //needed for currentuser id
 
 class ActivityFeedPage extends StatefulWidget {
@@ -175,7 +175,7 @@ openImage(BuildContext context, String imageId) {
 //          body: new ListView(
 //            children: <Widget>[
 //              new Container(
-//                child: new ImagePostFromId(id: imageId),
+//                child: new RequestPostFromId(id: imageId),
 //              ),
 //            ],
 //          )),

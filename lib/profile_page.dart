@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'main.dart';
-import 'image_post.dart';
+import 'request_post.dart';
 import 'dart:async';
 import 'edit_profile_page.dart';
 
@@ -242,16 +242,16 @@ class _ProfilePage extends State<ProfilePage> {
     }
 
     Container buildUserPosts() {
-      Future<List<ImagePost>> getPosts() async {
-        List<ImagePost> posts = [];
+      Future<List<RequestPost>> getPosts() async {
+        List<RequestPost> posts = [];
         var snap = await FirebaseDatabase.instance.reference()
             .child('twopoints_requests')
             .orderByChild('ownerId').equalTo(profileId)
 //            .where('ownerId', isEqualTo: profileId)
-            .orderByChild("timestamp")
+            .orderByChild("requestTimeStamp")
             .once();
-        for (var doc in snap.value) {
-          posts.add(new ImagePost.fromDataSnapshot(doc));
+        for (var json in snap.value) {
+          posts.add(new RequestPost.fromJSON(json));
         }
 //        setState(() {
 //          postCount = snap.childs.length;
@@ -261,7 +261,7 @@ class _ProfilePage extends State<ProfilePage> {
       }
 
       return new Container(
-          child: new FutureBuilder<List<ImagePost>>(
+          child: new FutureBuilder<List<RequestPost>>(
         future: getPosts(),
         builder: (context, snapshot) {
           if (!snapshot.hasData)
@@ -270,6 +270,8 @@ class _ProfilePage extends State<ProfilePage> {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: new CircularProgressIndicator());
           else if (view == "grid") {
+            return;
+            /**
             // build the grid
             return new GridView.count(
                 crossAxisCount: 3,
@@ -279,12 +281,13 @@ class _ProfilePage extends State<ProfilePage> {
                 crossAxisSpacing: 1.5,
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                children: snapshot.data.map((ImagePost imagePost) {
+                children: snapshot.data.map((RequestPost imagePost) {
                   return new GridTile(child: new ImageTile(imagePost));
                 }).toList());
+                */
           } else if (view == "feed") {
             return new Column(
-                children: snapshot.data.map((ImagePost imagePost) {
+                children: snapshot.data.map((RequestPost imagePost) {
               return imagePost;
             }).toList());
           }
@@ -413,8 +416,9 @@ class _ProfilePage extends State<ProfilePage> {
   }
 }
 
+/**
 class ImageTile extends StatelessWidget {
-  final ImagePost imagePost;
+  final RequestPost imagePost;
 
   ImageTile(this.imagePost);
 
@@ -447,6 +451,7 @@ class ImageTile extends StatelessWidget {
         child: new Image.network(imagePost.mediaUrl, fit: BoxFit.cover));
   }
 }
+*/
 
 class User {
   const User(

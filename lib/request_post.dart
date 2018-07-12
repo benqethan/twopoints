@@ -6,39 +6,52 @@ import 'dart:async';
 import 'profile_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class ImagePost extends StatefulWidget {
-  const ImagePost(
-      {this.mediaUrl,
-      this.username,
-      this.location,
-      this.description,
-      this.likes,
-      this.postId,
-      this.ownerId});
+class RequestPost extends StatefulWidget {
+  final String customerName;
+  final String fromLocation;
+  final String toLocation;
+  final String fromAddress;
+  final String toAddress;
+  final String notes;
+  final String requestId;
+  final String userId;
+  
+  const RequestPost(
+      {
+        this.customerName,
+        this.fromLocation,
+        this.toLocation,
+        this.fromAddress,
+        this.toAddress,
+        this.notes,
+        this.requestId,
+        this.userId});
 
-  factory ImagePost.fromDataSnapshot(DataSnapshot snap) {
-    return new ImagePost(
-      username: snap.value['username'],
-      location: snap.value['location'],
-      mediaUrl: snap.value['mediaUrl'],
-      likes: snap.value['likes'],
-      description: snap.value['description'],
-      postId: snap.value['childID'],
-      ownerId: snap.value['ownerId'],
+//  factory RequestPost.fromDataSnapshot(DataSnapshot snap) {
+//    return new RequestPost(
+//      customerName: snap.value['customerName'],
+//      location: snap.value['location'],
+//      mediaUrl: snap.value['mediaUrl'],
+//      likes: snap.value['likes'],
+//      notes: snap.value['notes'],
+//      requestId: snap.value['childID'],
+//      userId: snap.value['userId'],
+//    );
+//  }
+
+  factory RequestPost.fromJSON(Map data) {
+    return new RequestPost(
+      customerName: data['customerName'],
+      fromLocation: data['fromLocation'],
+      toLocation: data['toLocation'],
+      fromAddress: data['fromAddress'],
+      toAddress: data['toAddress'],
+      notes: data['notes'],
+      userId: data['userId'],
+      requestId: data['requestId'],
     );
   }
 
-  factory ImagePost.fromJSON(Map data) {
-    return new ImagePost(
-      username: data['username'],
-      location: data['location'],
-      mediaUrl: data['mediaUrl'],
-      likes: data['likes'],
-      description: data['description'],
-      ownerId: data['ownerId'],
-      postId: data['postId'],
-    );
-  }
   int getLikeCount(var likes) {
     if (likes == null) {
       return 0;
@@ -54,37 +67,29 @@ class ImagePost extends StatefulWidget {
 
     return count;
   }
+  
 
-  final String mediaUrl;
-  final String username;
-  final String location;
-  final String description;
-  final likes;
-  final String postId;
-  final String ownerId;
-
-  _ImagePost createState() => new _ImagePost(
-        mediaUrl: this.mediaUrl,
-        username: this.username,
-        location: this.location,
-        description: this.description,
-        likes: this.likes,
-        likeCount: getLikeCount(this.likes),
-        ownerId: this.ownerId,
-        postId: this.postId,
+  _RequestPost createState() => new _RequestPost(
+        customerName: this.customerName,
+        fromLocation: this.fromLocation,
+        toLocation: this.toLocation,
+        fromAddress: this.fromAddress,
+        toAddress: this.toAddress,
+        notes: this.notes,
+        userId: this.userId,
+        requestId: this.requestId,
       );
 }
 
-class _ImagePost extends State<ImagePost> {
-  final String mediaUrl;
-  final String username;
-  final String location;
-  final String description;
-  Map likes;
-  int likeCount;
-  final String postId;
-  bool liked;
-  final String ownerId;
+class _RequestPost extends State<RequestPost> {
+  final String customerName;
+  final String fromLocation;
+  final String toLocation;
+  final String fromAddress;
+  final String toAddress;
+  final String notes;
+  final String requestId;
+  final String userId;
 
   bool showHeart = false;
 
@@ -96,15 +101,17 @@ class _ImagePost extends State<ImagePost> {
   var reference = FirebaseDatabase.instance.reference().child(
       'twopoints_requests');
 
-  _ImagePost({this.mediaUrl,
-    this.username,
-    this.location,
-    this.description,
-    this.likes,
-    this.postId,
-    this.likeCount,
-    this.ownerId});
+  _RequestPost({
+    this.customerName,
+    this.fromLocation,
+    this.toLocation,
+    this.fromAddress,
+    this.toAddress,
+    this.notes,
+    this.requestId,
+    this.userId});
 
+  /**
   GestureDetector buildLikeIcon() {
     Color color;
     IconData icon;
@@ -123,13 +130,13 @@ class _ImagePost extends State<ImagePost> {
           color: color,
         ),
         onTap: () {
-          _likePost(postId);
+          _likePost(requestId);
         });
   }
 
   GestureDetector buildLikeableImage() {
     return new GestureDetector(
-      onDoubleTap: () => _likePost(postId),
+      onDoubleTap: () => _likePost(requestId),
       child: new Stack(
         alignment: Alignment.center,
         children: <Widget>[
@@ -155,39 +162,39 @@ class _ImagePost extends State<ImagePost> {
       ),
     );
   }
+*/
 
-  buildPostHeader({String ownerId}) {
-    if (ownerId == null) {
+  buildPostHeader({String userId}) {
+    if (userId == null) {
       return new Text("owner error");
     }
 
     return new FutureBuilder(
         future: FirebaseDatabase.instance.reference()
-            .child('users')
-            .child(ownerId)
+            .child('twopoints_users')
+            .child(userId)
             .once(),
-//            .get(),
         builder: (context, snapshot) {
-          String imageUrl = " ";
-          String username = "  ";
-
-          if (snapshot.data != null) {
-            imageUrl = snapshot.data.data['photoUrl'];
-            username = snapshot.data.data['username'];
+          String fromLocation = " ";
+          String customerName = "  ";
+// https://stackoverflow.com/questions/47784829/flutter-how-to-load-future-data-from-firebase-to-gridview
+          if (snapshot.hasData) {
+            fromLocation = snapshot.data.snapshot.value['fromLocation'];
+            customerName = snapshot.data.snapshot.value['customerName'];
           }
 
           return new ListTile(
             leading: new CircleAvatar(
-              backgroundImage: new CachedNetworkImageProvider(imageUrl),
+              backgroundImage: new CachedNetworkImageProvider(fromLocation),
               backgroundColor: Colors.grey,
             ),
             title: new GestureDetector(
-              child: new Text(username, style: boldStyle),
+              child: new Text(customerName, style: boldStyle),
               onTap: () {
-                openProfile(context, ownerId);
+                openProfile(context, userId);
               },
             ),
-            subtitle: new Text(this.location),
+            subtitle: new Text(this.fromLocation),
             trailing: const Icon(Icons.more_vert),
           );
         });
@@ -200,18 +207,18 @@ class _ImagePost extends State<ImagePost> {
 
   @override
   Widget build(BuildContext context) {
-    liked = (likes[googleSignIn.currentUser.id.toString()] == true);
+//    liked = (likes[googleSignIn.currentUser.id.toString()] == true);
 
     return new Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
-        buildPostHeader(ownerId: ownerId),
-        buildLikeableImage(),
+        buildPostHeader(userId: userId),
+//        buildLikeableImage(),
         new Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             new Padding(padding: const EdgeInsets.only(left: 20.0, top: 40.0)),
-            buildLikeIcon(),
+//            buildLikeIcon(),
             new Padding(padding: const EdgeInsets.only(right: 20.0)),
             new GestureDetector(
                 child: const Icon(
@@ -221,21 +228,10 @@ class _ImagePost extends State<ImagePost> {
                 onTap: () {
                   goToComments(
                       context: context,
-                      postId: postId,
-                      ownerId: ownerId,
-                      mediaUrl: mediaUrl);
+                      requestId: requestId,
+                      userId: userId
+                      );
                 }),
-          ],
-        ),
-        new Row(
-          children: <Widget>[
-            new Container(
-              margin: const EdgeInsets.only(left: 20.0),
-              child: new Text(
-                "$likeCount likes",
-                style: boldStyle,
-              ),
-            )
           ],
         ),
         new Row(
@@ -244,23 +240,24 @@ class _ImagePost extends State<ImagePost> {
             new Container(
                 margin: const EdgeInsets.only(left: 20.0),
                 child: new Text(
-                  "$username ",
+                  "$customerName ",
                   style: boldStyle,
                 )),
-            new Expanded(child: new Text(description)),
+            new Expanded(child: new Text(notes)),
           ],
         )
       ],
     );
   }
 
-  void _likePost(String postId2) {
+  /**
+  void _likePost(String requestId2) {
     var userId = googleSignIn.currentUser.id;
     bool _liked = likes[userId] == true;
 
     if (_liked) {
       print('removing like');
-      reference.child(postId).update({
+      reference.child(requestId).update({
         'likes.$userId': false
         //firestore plugin doesnt support deleting, so it must be nulled / falsed
       });
@@ -276,7 +273,7 @@ class _ImagePost extends State<ImagePost> {
 
     if (!_liked) {
       print('liking');
-      reference.child(postId).update({'likes.$userId': true});
+      reference.child(requestId).update({'likes.$userId': true});
 
       addActivityFeedItem();
 
@@ -293,50 +290,51 @@ class _ImagePost extends State<ImagePost> {
       });
     }
   }
+  */
 
   void addActivityFeedItem() {
 //    FirebaseDatabase.instance.reference()
 //        .child("twopoints_a_feed")
-//        .child(ownerId)
+//        .child(userId)
 //        .getCollection("items")
-//        .child(postId)
+//        .child(requestId)
 //        .setData({
-//      "username": currentUserModel.username,
+//      "customerName": currentUserModel.customerName,
 //      "userId": currentUserModel.id,
 //      "type": "like",
 //      "userProfileImg": currentUserModel.photoUrl,
 //      "mediaUrl": mediaUrl,
 //      "timestamp": new DateTime.now().toString(),
-//      "postId": postId,
+//      "requestId": requestId,
 //    });
   }
 
   void removeActivityFeedItem() {
 //    FirebaseDatabase.instance.reference()
 //        .child("twopoints_a_feed")
-//        .child(ownerId)
+//        .child(userId)
 //        .getCollection("items")
-//        .child(postId)
+//        .child(requestId)
 //        .delete();
 //  }
   }
 }
 
-//class ImagePostFromId extends StatelessWidget {
+//class RequestPostFromId extends StatelessWidget {
 //  final String id;
 //
-//  const ImagePostFromId({this.id});
+//  const RequestPostFromId({this.id});
 //
-//  getImagePost() async {
+//  getRequestPost() async {
 ////    var document =
 ////        await FirebaseDatabase.instance.reference().child('twopoints_requests').child(id).get();
-////    return new ImagePost.fromDatabaseSnapshot(document);
+////    return new RequestPost.fromDatabaseSnapshot(document);
 //  }
 //
 //  @override
 //  Widget build(BuildContext context) {
 //    return new FutureBuilder(
-//        future: getImagePost(),
+//        future: getRequestPost(),
 //        builder: (context, snapshot) {
 //          if (!snapshot.hasData)
 //            return new Container(
@@ -357,13 +355,13 @@ void openProfile(BuildContext context, String userId) {
 }
 
 void goToComments(
-    {BuildContext context, String postId, String ownerId, String mediaUrl}) {
+    {BuildContext context, String requestId, String userId, String mediaUrl}) {
 //  Navigator
 //      .of(context)
 //      .push(new MaterialPageRoute<bool>(builder: (BuildContext context) {
 //    return new CommentScreen(
-//      postId: postId,
-//      postOwner: ownerId,
+//      requestId: requestId,
+//      postOwner: userId,
 //      postMediaUrl: mediaUrl,
 //    );
 //  }));

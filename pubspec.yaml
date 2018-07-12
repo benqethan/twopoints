@@ -10,7 +10,7 @@ dependencies:
   firebase_storage: 0.3.7
   firebase_auth: 0.5.11
   firebase_analytics: "^1.0.1"
-  firebase_database: "^1.0.1"
+  firebase_database: "^1.0.2"
   google_sign_in: 3.0.4
   uuid: 0.5.3
   image: 1.1.30

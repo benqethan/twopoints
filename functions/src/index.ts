@@ -9,22 +9,20 @@ const utils = new GeoUtils();
 
 // As an admin, the app has access to read and write all data, regardless of Security Rules
 let db = admin.database();
-let ref = db.ref("requests");
+let ref = db.ref("twopoints_requests");
 
 export const getRequests = functions.https.onRequest((req, res) => {
   const uid = String(req.query.uid);
   console.log('getRequests start.................');
 
   async function compileFeedPost() {
-    console.log('I am a log entry111111111111!');
-
-//    const following = await getFollowing(uid, res) as any;
+    console.log('xx I am a log entry111111111111!');
 
     let listOfPosts = await getAllPosts(0, res);
 
     listOfPosts = [].concat.apply([], listOfPosts); // flattens list
-    console.log('Count of posts:' + listOfPosts.length);
-    console.log(listOfPosts[0]);
+    // console.log('Count of posts:' + listOfPosts.length);
+    // console.log(listOfPosts[0]);
     res.send(listOfPosts);
 
     // const matches = await doMatch();
@@ -60,43 +58,35 @@ async function doMatch() {
 }
 
 async function getAllPosts(following, res) {
-//  let listOfPosts = [];
-
-// for (let user in following){
-//   listOfPosts.push( await getCustomerRequests(following[user], res));
-// }
-
   const userId = 999;
 
-  return getCustomerRequests(userId, res);
+  var posts = await getCustomerRequests(0, 0);
+  console.log("getCustomerRequests done, posts:" + posts);
+
+  return posts;
 }
 
 
-function getCustomerRequests(userId, res){
-  const queryRef = ref.orderByChild("requestTimestamp").limitToLast(10);
+async function getCustomerRequests(userId, res){
+  // const queryRef = ref.orderByChild("requestTimestamp").limitToLast(10);
   let listOfRequests = [];
 
-  ref.on("value", function(querySnapshot) {
-        querySnapshot.forEach(function(reqSnapshot) {
-          listOfRequests.push(reqSnapshot.val());
-          return true;
-        });
+  console.log("getCustomerRequests...");
+
+  // TODO: If use .on(), need to remove the listner if the user shift the activity to save the power and prevent memory leak
+ return ref.once('value').then((snapshot) => {
+    snapshot.forEach((reqSnapshot) => {
+      listOfRequests.push(reqSnapshot.val());
+    });
+
+    // console.log("getCustomerRequests done, size is " + listOfRequests.length);
+
+    return listOfRequests;
+  }).catch((error) => {
+    console.log('Error getting messages', error.message);
   });
 
   return listOfRequests;
-
-//  const requests = admin.firestore().collection("twopoints_requests").where("userId", "==", userId).orderBy("timestamp")
-//
-//  return requests.get()
-//  .then(function(querySnapshot) {
-//      let listOfRequests = [];
-//
-//      querySnapshot.forEach(function(doc) {
-//          listOfRequests.push(doc.data());
-//      });
-//
-//      return listOfRequests;
-//  })
 }
 
 

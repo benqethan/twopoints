@@ -10,7 +10,6 @@ import 'profile_page.dart';
 import 'search_page.dart';
 import 'activity_feed.dart';
 import 'create_account.dart';
-//import './globalStore.dart' as globalStore;
 
 // Sign in
 final googleSignIn = new GoogleSignIn();
@@ -49,10 +48,6 @@ Future<Null> _silentLogin(BuildContext context) async {
 
 tryCreateUserRecord(BuildContext context) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
-
-//  var x = databaseReference.child('xxxxx');
-//  var y = x.child('y');
-//  y.set({"value": "y value"});
 
   print('xxxxxxxxxxxxxxxx: tryCreateUserRecord for user:');
   if (user == null) {
@@ -129,9 +124,9 @@ Future<Null> _ensureLoggedIn(context) async {
     analytics.logLogin();
     usersDatabaseReference = databaseReference.child('twopoints_userInfos'); // user.id as the node key
     serviceLocationsDatabaseReference =
-        databaseReference.child('twopoints_serviceLocation');
+        databaseReference.child('twopoints_serviceLocations');
     requestsDatabaseReference =
-        databaseReference.child('twopoints_requestLocation');
+        databaseReference.child('twopoints_requestLocations');
   }
 
   print('xxxxxxxxxx finished the sign in. user:' + user.displayName);

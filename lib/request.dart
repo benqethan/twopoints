@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'image_post.dart';
+import 'request_post.dart';
 import 'dart:async';
 import 'package:async/async.dart';
 import 'main.dart';
@@ -12,7 +12,7 @@ class Request extends StatefulWidget {
 }
 
 class _Request extends State<Request> {
-  List<ImagePost> requestsData;
+  List<RequestPost> requestsData;
 
   @override
   void initState() {
@@ -63,10 +63,10 @@ class _Request extends State<Request> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String json = prefs.getString("request");
 
-    if (json != null) {
+    if (json != null && json.length > 0) {
       List<Map<String, dynamic>> data =
           jsonDecode(json).cast<Map<String, dynamic>>();
-      List<ImagePost> listOfRequests = _generateRequests(data);
+      List<RequestPost> listOfRequests = _generateRequests(data);
       setState(() {
         requestsData = listOfRequests;
       });
@@ -82,7 +82,7 @@ class _Request extends State<Request> {
     var url = 'https://us-central1-two-points.cloudfunctions.net/getRequests?uid=' + userId;
     var httpClient = new HttpClient();
 
-    List<ImagePost> listOfRequests;
+    List<RequestPost> listOfRequests;
     String result;
     try {
       var request = await httpClient.getUrl(Uri.parse(url));
@@ -90,16 +90,14 @@ class _Request extends State<Request> {
       if (response.statusCode == HttpStatus.OK) {
         String json = await response.transform(utf8.decoder).join();
         prefs.setString("requests", json);
-        List<Map<String, dynamic>> data =
-        jsonDecode(json).cast<Map<String, dynamic>>();
+        List<Map<String, dynamic>> data = jsonDecode(json).cast<Map<String, dynamic>>();
         listOfRequests = _generateRequests(data);
+        result = 'Pulled data:' + json;
       } else {
-        result =
-            'Error getting a request:\nHttp status ${response.statusCode}';
+        result = 'Error getting a request:\nHttp status ${response.statusCode}';
       }
     } catch (exception) {
-      result =
-          'Failed invoking the getRequests function. Exception: $exception';
+      result = 'Failed invoking the getRequests function. Exception: $exception';
     }
     print(result);
 
@@ -108,11 +106,11 @@ class _Request extends State<Request> {
     });
   }
 
-  List<ImagePost> _generateRequests(List<Map<String, dynamic>> requestsData) {
-    List<ImagePost> listOfRequests = [];
+  List<RequestPost> _generateRequests(List<Map<String, dynamic>> requestsData) {
+    List<RequestPost> listOfRequests = [];
 
     for (var postData in requestsData) {
-      listOfRequests.add(new ImagePost.fromJSON(postData));
+      listOfRequests.add(new RequestPost.fromJSON(postData));
     }
 
     return listOfRequests;

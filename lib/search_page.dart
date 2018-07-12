@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'dart:async';
 import "profile_page.dart"; // needed to import for User Class
-import "image_post.dart"; // needed to import for openProfile function
+import "request_post.dart"; // needed to import for openProfile function
 
 class SearchPage extends StatefulWidget {
   _SearchPage createState() => new _SearchPage();
