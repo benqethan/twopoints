@@ -8,8 +8,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class RequestPost extends StatefulWidget {
   final String customerName;
-  final String fromLocation;
-  final String toLocation;
+  final dynamic fromLocation;
+  final dynamic toLocation;
   final String fromAddress;
   final String toAddress;
   final String notes;
@@ -39,7 +39,7 @@ class RequestPost extends StatefulWidget {
 //    );
 //  }
 
-  factory RequestPost.fromJSON(Map data) {
+  factory RequestPost.fromJSON(Map<String, dynamic> data) {
     return new RequestPost(
       customerName: data['customerName'],
       fromLocation: data['fromLocation'],
@@ -83,8 +83,8 @@ class RequestPost extends StatefulWidget {
 
 class _RequestPost extends State<RequestPost> {
   final String customerName;
-  final String fromLocation;
-  final String toLocation;
+  final dynamic fromLocation;
+  final dynamic toLocation;
   final String fromAddress;
   final String toAddress;
   final String notes;
