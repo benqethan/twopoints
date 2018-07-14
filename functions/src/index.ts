@@ -61,13 +61,15 @@ async function getAllPosts(following, res) {
   const userId = 999;
 
   var posts = await getCustomerRequests(0, 0);
-  console.log("getCustomerRequests done, posts:" + posts);
+//  for (const post in posts) {
+//    console.log("getCustomerRequests done, post:" + post);
+//  }
 
   return posts;
 }
 
 
-async function getCustomerRequests(userId, res){
+async function getCustomerRequests(userId, res) {
   // const queryRef = ref.orderByChild("requestTimestamp").limitToLast(10);
   let listOfRequests = [];
 

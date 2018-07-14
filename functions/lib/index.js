@@ -60,7 +60,9 @@ function getAllPosts(following, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const userId = 999;
         var posts = yield getCustomerRequests(0, 0);
-        console.log("getCustomerRequests done, posts:" + posts);
+        //  for (const post in posts) {
+        //    console.log("getCustomerRequests done, post:" + post);
+        //  }
         return posts;
     });
 }
@@ -70,19 +72,6 @@ function getCustomerRequests(userId, res) {
         let listOfRequests = [];
         console.log("getCustomerRequests...");
         // TODO: If use .on(), need to remove the listner if the user shift the activity to save the power and prevent memory leak
-        // https://stackoverflow.com/questions/45595587/firebase-database-snapshot-foreach-async-await
-        //  const snap = await ref.once("value");
-        //  snap.forEach(async reqSnapshot => {
-        //                                listOfRequests.push(await reqSnapshot.val());
-        //                           });
-        //  ref.on("value", function(querySnapshot) {
-        //        querySnapshot.forEach(function(reqSnapshot) {
-        //          listOfRequests.push(reqSnapshot.val());
-        //          return false;
-        //        });
-        //  }, function (errorObject) {
-        //     console.log("The read failed: " + errorObject.code);
-        //  });
         return ref.once('value').then((snapshot) => {
             snapshot.forEach((reqSnapshot) => {
                 listOfRequests.push(reqSnapshot.val());
