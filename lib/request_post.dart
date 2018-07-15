@@ -1,9 +1,8 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'main.dart';
+//import 'main.dart';
 import 'profile_page.dart';
 
 class RequestPost extends StatefulWidget {
@@ -124,143 +123,118 @@ class _RequestPost extends State<RequestPost> {
 
   @override
   Widget build(BuildContext context) {
-    return new Card(
-      child: new Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        new Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+    return new GestureDetector(
+      child: new Card(
+        color: Colors.lightBlue,
+        child: new Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
-            new Padding(padding: const EdgeInsets.only(left: 20.0, top: 40.0)),
-//            buildLikeIcon(),
-            new Padding(padding: const EdgeInsets.only(right: 20.0)),
-            new GestureDetector(
-                child: new Column(
-                    children: [
-                    new Text(fromAddress),
-                    const Icon(
-                  FontAwesomeIcons.mapPin,
-                  color: Colors.green,
-                  size: 25.0,
-                )]),
-                onTap: () {
-                  goToRequestDetail(
-                      context: context,
-                      requestId: requestId,
-                      userId: userId
-                      );
-                }),
+            new TextField(
+              textAlign: TextAlign.left,
+              maxLines: 1,
+              enabled: false,
+              decoration: const InputDecoration(
+                icon: const Icon(Icons.time_to_leave),
+                labelText: 'From:',
+              ),
+              controller: new TextEditingController(text: "$fromAddress"),
+            ),
+            new TextField(
+              textAlign: TextAlign.left,
+              maxLines: 1,
+              enabled: false,
+              decoration: const InputDecoration(
+                icon: const Icon(Icons.assistant_photo),
+                labelText: 'To:',
+              ),
+              controller: new TextEditingController(text: "$toAddress"),
+            ),
+            new TextField(
+              textAlign: TextAlign.left,
+              maxLines: 1,
+              enabled: false,
+              decoration: const InputDecoration(
+                icon: const Icon(Icons.attach_money),
+                labelText: 'Price:',
+              ),
+              controller: new TextEditingController(text: "$price"),
+            ),
+            new TextField(
+              textAlign: TextAlign.left,
+              maxLines: 1,
+              enabled: false,
+              decoration: const InputDecoration(
+                icon: const Icon(Icons.note),
+                labelText: 'Notes:',
+              ),
+              controller: new TextEditingController(text: "$notes"),
+            ),
           ],
         ),
-        new Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            new Container(
-                margin: const EdgeInsets.only(left: 20.0),
-                child: new Text(
-                  "$customerName ",
-                  style: boldStyle,
-                )),
-            new Expanded(child: new Text(notes)),
-          ],
-        ),
-        new Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            new Container(
-                margin: const EdgeInsets.only(left: 20.0),
-                child: new Text(
-                  "$price",
-                  style: boldStyle,
-                )),
-            new Expanded(child: new Text(notes)),
-          ],
-        ),
-//        new Divider(height: 10.0, color: Colors.blue),
-      ],
-    ),
+      ),
+      onTap: () {
+        goToRequestDetail(
+            context: context,
+            requestId: requestId,
+            userId: userId
+        );
+      },
     );
   }
 
   /**
-  void _likePost(String requestId2) {
-    var userId = googleSignIn.currentUser.id;
-    bool _liked = likes[userId] == true;
+      void _likePost(String requestId2) {
+      var userId = googleSignIn.currentUser.id;
+      bool _liked = likes[userId] == true;
 
-    if (_liked) {
+      if (_liked) {
       print('removing like');
       reference.child(requestId).update({
-        'likes.$userId': false
-        //firestore plugin doesnt support deleting, so it must be nulled / falsed
+      'likes.$userId': false
+      //firestore plugin doesnt support deleting, so it must be nulled / falsed
       });
 
       setState(() {
-        likeCount = likeCount - 1;
-        liked = false;
-        likes[userId] = false;
+      likeCount = likeCount - 1;
+      liked = false;
+      likes[userId] = false;
       });
 
-      removeActivityFeedItem();
-    }
+      removePackageTrackingItem();
+      }
 
-    if (!_liked) {
+      if (!_liked) {
       print('liking');
       reference.child(requestId).update({'likes.$userId': true});
 
-      addActivityFeedItem();
+      addPackageTrackingItem();
 
       setState(() {
-        likeCount = likeCount + 1;
-        liked = true;
-        likes[userId] = true;
-        showHeart = true;
+      likeCount = likeCount + 1;
+      liked = true;
+      likes[userId] = true;
+      showHeart = true;
       });
       new Timer(const Duration(milliseconds: 500), () {
-        setState(() {
-          showHeart = false;
-        });
+      setState(() {
+      showHeart = false;
       });
-    }
+      });
+      }
+      }
+   */
+
+  void openProfile(BuildContext context, String userId) {
+    Navigator
+        .of(context)
+        .push(new MaterialPageRoute<bool>(builder: (BuildContext context) {
+      return new ProfilePage(userId: userId);
+    }));
   }
-  */
 
-//class RequestPostFromId extends StatelessWidget {
-//  final String id;
-//
-//  const RequestPostFromId({this.id});
-//
-//  getRequestPost() async {
-////    var document =
-////        await FirebaseDatabase.instance.reference().child('twopoints_requests').child(id).get();
-////    return new RequestPost.fromDatabaseSnapshot(document);
-//  }
-//
-//  @override
-//  Widget build(BuildContext context) {
-//    return new FutureBuilder(
-//        future: getRequestPost(),
-//        builder: (context, snapshot) {
-//          if (!snapshot.hasData)
-//            return new Container(
-//                alignment: FractionalOffset.center,
-//                padding: const EdgeInsets.only(top: 10.0),
-//                child: new CircularProgressIndicator());
-//          return snapshot.data;
-//        });
-//  }
-//}
-
-void openProfile(BuildContext context, String userId) {
-  Navigator
-      .of(context)
-      .push(new MaterialPageRoute<bool>(builder: (BuildContext context) {
-    return new ProfilePage(userId: userId);
-  }));
-}
-
-void goToRequestDetail(
-    {BuildContext context, String requestId, String userId, String mediaUrl}) {
-  print('goToRequestDetail...');
+  void goToRequestDetail(
+      {BuildContext context, String requestId, String userId, String mediaUrl}) {
+    print('goToRequestDetail...');
 //  Navigator
 //      .of(context)
 //      .push(new MaterialPageRoute<bool>(builder: (BuildContext context) {
@@ -270,5 +244,6 @@ void goToRequestDetail(
 //      postMediaUrl: mediaUrl,
 //    );
 //  }));
-}
+  }
 
+}

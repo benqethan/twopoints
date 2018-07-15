@@ -122,7 +122,7 @@ class EditProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return new FutureBuilder(
         future: FirebaseDatabase.instance
-            .reference().child('users')
+            .reference().child('twopoints_userInfos')
             .child(currentUserModel.id)
             .once(),          // once return Futute<DataSnapshot>
         builder: (context, snapshot) {
@@ -131,7 +131,7 @@ class EditProfilePage extends StatelessWidget {
                 alignment: FractionalOffset.center,
                 child: new CircularProgressIndicator());
 
-          User user = new User.fromDataSnapshot(snapshot.data);
+          User user = new User.fromJSON(snapshot.data.value);
 
           nameController.text = user.displayName;
           bioController.text = user.bio;

@@ -14,7 +14,7 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
     return new Scaffold(
       appBar: new AppBar(
         title: new Text(
-          "Activity Feed",
+          "Package Tracking",
           style: new TextStyle(color: Colors.black),
         ),
         backgroundColor: Colors.white,
@@ -41,32 +41,20 @@ class _ActivityFeedPageState extends State<ActivityFeedPage> {
   }
 
   getRequests() async {
-    List<ActivityFeedItem> items = [];
-//    var snap = await FirebaseDatabase.instance
+    List<PackageTrackingItem> items = [];
+
+//      FirebaseDatabase.instance.reference()
 //        .child('twopoints_a_feed')
 //        .child(currentUserModel.id)
-//        .getCollection("items")
-//        .orderBy("timestamp")
-//        .getDocuments();
-      FirebaseDatabase.instance.reference()
-        .child('twopoints_a_feed')
-        .child(currentUserModel.id)
-        .onValue.listen((Event e) {
-          items.add(new ActivityFeedItem.fromDatabaseSnapshot(e.snapshot));
-        });
+//        .onValue.listen((Event e) {
+//          items.add(new PackageTrackingItem.fromJSON(e.snapshot));
+//        });
 
-//        .getCollection("items")
-//        .orderBy("timestamp")
-//        .getDocuments();
-
-//    for (var doc in snap.childs) {
-//      items.add(new ActivityFeedItem.fromDatabaseSnapshot(doc));
-//    }
     return items;
   }
 }
 
-class ActivityFeedItem extends StatelessWidget {
+class PackageTrackingItem extends StatelessWidget {
   final String username;
   final String userId;
   final String type; // potetial types include liked photo, follow user, comment on photo
@@ -75,7 +63,7 @@ class ActivityFeedItem extends StatelessWidget {
   final String userProfileImg;
   final String commentData;
 
-  ActivityFeedItem(
+  PackageTrackingItem(
       {this.username,
       this.userId,
       this.type,
@@ -84,8 +72,8 @@ class ActivityFeedItem extends StatelessWidget {
       this.userProfileImg,
       this.commentData});
 
-  factory ActivityFeedItem.fromDatabaseSnapshot(DataSnapshot snap) {
-    return new ActivityFeedItem(
+  factory PackageTrackingItem.fromJSON(DataSnapshot snap) {
+    return new PackageTrackingItem(
       username: snap.value['username'],
       userId: snap.value['userId'],
       type: snap.value['type'],

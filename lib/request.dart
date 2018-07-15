@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'request_post.dart';
 import 'dart:async';
-import 'package:async/async.dart';
 import 'main.dart';
 import 'dart:io';
 import 'dart:convert';

@@ -8,7 +8,7 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'profile_page.dart';
 import 'search_page.dart';
-import 'activity_feed.dart';
+import 'pacakge_tracking.dart';
 import 'create_account.dart';
 
 // Sign in

@@ -40,7 +40,7 @@ class _SearchPage extends State<SearchPage> {
     }
 
 //    snapshot.value.va((DataSnapshot snapshot) {
-//      User user = new User.fromDataSnapshot(snapshot);
+//      User user = new User.fromJSON(snapshot);
 //      UserSearchItem searchItem = new UserSearchItem(user);
 //      userSearchItems.add(searchItem);
 //    });
@@ -113,4 +113,6 @@ class UserSearchItem extends StatelessWidget {
           openProfile(context, user.id);
         });
   }
+
+  void openProfile(BuildContext context, String id) {}
 }

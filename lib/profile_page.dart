@@ -270,7 +270,7 @@ class _ProfilePage extends State<ProfilePage> {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: new CircularProgressIndicator());
           else if (view == "grid") {
-            return;
+            return new Container();
             /**
             // build the grid
             return new GridView.count(
@@ -306,7 +306,7 @@ class _ProfilePage extends State<ProfilePage> {
             });
         */
         stream: FirebaseDatabase.instance.reference()
-            .child('users')
+            .child('twopoints_userInfos')
             .child(profileId)
             .once().asStream(),
         builder: (context, snapshot) {
@@ -315,13 +315,14 @@ class _ProfilePage extends State<ProfilePage> {
                 alignment: FractionalOffset.center,
                 child: new CircularProgressIndicator());
 
-          User user = new User.fromDataSnapshot(snapshot.data);
+          Map<dynamic, dynamic> map = snapshot.data.value;
+          User user = new User.fromJSON(map);
 
-          if (user.followers.containsKey(currentUserId) &&
-              user.followers[currentUserId] &&
-              followButtonClicked == false) {
-            isFollowing = true;
-          }
+//          if (user.followers.containsKey(currentUserId) &&
+//              user.followers[currentUserId] &&
+//              followButtonClicked == false) {
+//            isFollowing = true;
+//          }
 
           return new Scaffold(
               appBar: new AppBar(
@@ -404,13 +405,13 @@ class _ProfilePage extends State<ProfilePage> {
   int _countFollowings(Map followings) {
     int count = 0;
 
-    void countValues(key, value) {
-      if (value) {
-        count += 1;
-      }
-    }
-
-    followings.forEach(countValues);
+//    void countValues(key, value) {
+//      if (value) {
+//        count += 1;
+//      }
+//    }
+//
+//    followings.forEach(countValues);
 
     return count;
   }
@@ -473,31 +474,14 @@ class User {
   final Map followers;
   final Map following;
 
-//  factory User.fromDatabaseSnapshot(DataSnapshot document) {
-//    return new User(
-//      email: document['email'],
-//      username: document['username'],
-//      photoUrl: document['photoUrl'],
-//      id: document.childID,
-//      displayName: document['displayName'],
-//      bio: document['bio'],
-//      followers: document['followers'],
-//      following: document['following'],
-//    );
-//  }
-
-  factory User.fromDataSnapshot(DataSnapshot snapshot) {
-    var dbuser = snapshot.value();
-
+  factory User.fromJSON(Map snapshot) {
     return new User(
-      email: dbuser.email,
-      username: dbuser.username,
-      photoUrl: dbuser.photoUrl,
-      id: dbuser.id,
-      displayName: dbuser.displayName,
-      bio: dbuser.bio,
-      followers: dbuser.followers,
-      following: dbuser.following,
+      email: snapshot['email'],
+      username: snapshot['username'],
+      photoUrl: snapshot['photoUrl'],
+//      id: snapshot['id'],
+      displayName: snapshot['displayName'],
+      bio: snapshot['bio'],
     );
   }
 }
