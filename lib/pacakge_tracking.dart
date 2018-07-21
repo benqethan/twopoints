@@ -3,12 +3,12 @@ import 'package:firebase_database/firebase_database.dart';
 import 'request_post.dart'; //needed to open image when clicked
 import 'main.dart'; //needed for currentuser id
 
-class ActivityFeedPage extends StatefulWidget {
+class PackageTrackingPage extends StatefulWidget {
   @override
-  _ActivityFeedPageState createState() => new _ActivityFeedPageState();
+  _PackageTrackingPageState createState() => new _PackageTrackingPageState();
 }
 
-class _ActivityFeedPageState extends State<ActivityFeedPage> {
+class _PackageTrackingPageState extends State<PackageTrackingPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(

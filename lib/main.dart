@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'request.dart';
-import 'upload_page.dart';
+import 'request_poster.dart';
 import 'dart:async';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -240,10 +240,10 @@ class _HomePageState extends State<HomePage> {
                 new Container(color: Colors.white, child: new SearchPage()),
                 new Container(
                   color: Colors.white,
-                  child: new Uploader(),
+                  child: new RequestPoster(),
                 ),
                 new Container(
-                    color: Colors.white, child: new ActivityFeedPage()),
+                    color: Colors.white, child: new PackageTrackingPage()),
                 new Container(
                     color: Colors.white,
                     child: new ProfilePage(
