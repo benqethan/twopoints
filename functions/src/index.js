@@ -124,7 +124,7 @@ function getAllPosts(following, res) {
     });
 }
 function getUserPosts(userId, res) {
-    var posts = admin.firestore().collection("twopoints_requests").where("ownerId", "==", userId).orderBy("timestamp");
+    var posts = admin.firestore().collection("twopoints_requests").where("userId", "==", userId).orderBy("timestamp");
     return posts.get()
         .then(function (querySnapshot) {
         var listOfPosts = [];

@@ -6,21 +6,24 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'profile_page.dart';
 
 class RequestPost extends StatefulWidget {
-  final String customerName;
-  final dynamic fromLocation;
-  final dynamic toLocation;
-  final String fromAddress;
-  final String toAddress;
-  final String notes;
-  final String requestId;
-  final double price;
-  final String deliveryDateStart;
-  final String deliveryDateEnd;
-  final String userId;
+  String userName;
+  dynamic fromLocation;
+  dynamic toLocation;
+  String fromAddress;
+  String toAddress;
+  String notes;
+  String requestId;
+  double price;
+  String deliveryDateStart;
+  String deliveryDateEnd;
+  String userId;
+  String phone;
+  String weight;
+  String item;
   
-  const RequestPost(
+  RequestPost(
       {
-        this.customerName,
+        this.userName,
         this.fromLocation,
         this.toLocation,
         this.fromAddress,
@@ -30,11 +33,14 @@ class RequestPost extends StatefulWidget {
         this.price,
         this.deliveryDateStart,
         this.deliveryDateEnd,
-        this.userId});
+        this.userId,
+        this.phone,
+        this.weight,
+        this.item});
 
   factory RequestPost.fromJSON(Map<String, dynamic> data) {
     return new RequestPost(
-      customerName: data['customerName'],
+      userName: data['userName'],
       fromLocation: data['fromLocation'],
       toLocation: data['toLocation'],
       fromAddress: data['fromAddress'],
@@ -45,6 +51,9 @@ class RequestPost extends StatefulWidget {
       price: double.tryParse(data['price'].toString()), // convert the int to double, will keep the doulbe as double
       deliveryDateStart: data['deliveryDateStart'],
       deliveryDateEnd: data['deliveryDateEnd'],
+      phone: data['phone'],
+      weight: data['weight'],
+      item: data['item'],
     );
   }
 
@@ -66,7 +75,7 @@ class RequestPost extends StatefulWidget {
   
 
   _RequestPost createState() => new _RequestPost(
-        customerName: this.customerName,
+        userName: this.userName,
         fromLocation: this.fromLocation,
         toLocation: this.toLocation,
         fromAddress: this.fromAddress,
@@ -77,11 +86,14 @@ class RequestPost extends StatefulWidget {
         price: this.price,
         deliveryDateStart: this.deliveryDateStart,
         deliveryDateEnd: this.deliveryDateEnd,
+        phone: this.phone,
+        weight: this.weight,
+        item: this.item,
       );
 }
 
 class _RequestPost extends State<RequestPost> {
-  final String customerName;
+  final String userName;
   final dynamic fromLocation;
   final dynamic toLocation;
   final String fromAddress;
@@ -92,8 +104,9 @@ class _RequestPost extends State<RequestPost> {
   final String deliveryDateStart;
   final String deliveryDateEnd;
   final String userId;
-
-  bool showHeart = false;
+  final String phone;
+  final String weight;
+  final String item;
 
   TextStyle boldStyle = new TextStyle(
     color: Colors.black,
@@ -104,7 +117,7 @@ class _RequestPost extends State<RequestPost> {
       'twopoints_requests');
 
   _RequestPost({
-    this.customerName,
+    this.userName,
     this.fromLocation,
     this.toLocation,
     this.fromAddress,
@@ -114,7 +127,10 @@ class _RequestPost extends State<RequestPost> {
     this.price,
     this.deliveryDateStart,
     this.deliveryDateEnd,
-    this.userId});
+    this.userId,
+    this.phone,
+  this.weight,
+  this.item});
 
   Container loadingPlaceHolder = Container(
     height: 400.0,
@@ -181,48 +197,6 @@ class _RequestPost extends State<RequestPost> {
       },
     );
   }
-
-  /**
-      void _likePost(String requestId2) {
-      var userId = googleSignIn.currentUser.id;
-      bool _liked = likes[userId] == true;
-
-      if (_liked) {
-      print('removing like');
-      reference.child(requestId).update({
-      'likes.$userId': false
-      //firestore plugin doesnt support deleting, so it must be nulled / falsed
-      });
-
-      setState(() {
-      likeCount = likeCount - 1;
-      liked = false;
-      likes[userId] = false;
-      });
-
-      removePackageTrackingItem();
-      }
-
-      if (!_liked) {
-      print('liking');
-      reference.child(requestId).update({'likes.$userId': true});
-
-      addPackageTrackingItem();
-
-      setState(() {
-      likeCount = likeCount + 1;
-      liked = true;
-      likes[userId] = true;
-      showHeart = true;
-      });
-      new Timer(const Duration(milliseconds: 500), () {
-      setState(() {
-      showHeart = false;
-      });
-      });
-      }
-      }
-   */
 
   void openProfile(BuildContext context, String userId) {
     Navigator

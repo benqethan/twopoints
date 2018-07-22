@@ -9,7 +9,6 @@ class _CreateAccountState extends State<CreateAccount> {
   final name = new TextEditingController();
   final phone = new TextEditingController();
 
-
   @override
   void dispose() {
     // Clean up the controller when the Widget is removed from the Widget tree
@@ -66,11 +65,9 @@ class _CreateAccountState extends State<CreateAccount> {
           if (name.text == null || name.text.length == 0){
             return;
           }
-          Navigator.pop(context, name.text);
+          Navigator.pop(context, {"text": name.text, "phone": phone.text});
         },
-
-
-          child: new Container(
+        child: new Container(
         width: 350.0,
         height: 50.0,
         child: new Center(

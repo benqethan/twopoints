@@ -14,7 +14,7 @@ import 'create_account.dart';
 // Sign in
 final googleSignIn = new GoogleSignIn();
 final auth = FirebaseAuth.instance;
-GoogleSignInAccount user;
+GoogleSignInAccount googleUser;
 
 // RDB
 DatabaseReference usersDatabaseReference;
@@ -26,9 +26,8 @@ final databaseReference = FirebaseDatabase.instance.reference();
 // Analytics
 final analytics = new FirebaseAnalytics();
 
-
+// Global app user
 User currentUserModel;
-
 
 Future<Null> _silentLogin(BuildContext context) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
@@ -46,7 +45,7 @@ Future<Null> _silentLogin(BuildContext context) async {
   }
 }
 
-tryCreateUserRecord(BuildContext context) async {
+Future<User> tryCreateUserRecord(BuildContext context) async {
   GoogleSignInAccount user = googleSignIn.currentUser;
 
   print('xxxxxxxxxxxxxxxx: tryCreateUserRecord for user:');
@@ -57,8 +56,7 @@ tryCreateUserRecord(BuildContext context) async {
   var userRecord = await databaseReference.child('twopoints_userInfos').child(user.id).once();
   if (userRecord.value == null) {
     // no user record exists, time to create
-
-    String userName = await Navigator.push(
+    var enteredUserInfo = await Navigator.push(
       context,
       // We'll create the SelectionScreen in the next step!
       new MaterialPageRoute(
@@ -82,14 +80,15 @@ tryCreateUserRecord(BuildContext context) async {
               )),
     );
 
-    if (userName != null || userName.length != 0){
+    if (enteredUserInfo.userName != null || enteredUserInfo.userName.length != 0){
     // set user data under its Id
 
       databaseReference.child('twopoints_userInfos').child(user.id).set({
-        "username": userName,
+        "username": enteredUserInfo.userName,   // app user name
         "photoUrl": user.photoUrl,
         "email": user.email,
-        "displayName": user.displayName,
+        "displayName": user.displayName,      // googleUser.userName is not used
+        "phone": enteredUserInfo.phone,
         "bio": "",
         "followers": {},
         "following": {},
@@ -99,7 +98,7 @@ tryCreateUserRecord(BuildContext context) async {
   }
 
   // TODO: set model from userRecord. userName is not in user object!
-  currentUserModel = new User(
+  return new User(
     id: user.id,
     username: user.displayName,
     photoUrl: user.photoUrl,
@@ -107,33 +106,32 @@ tryCreateUserRecord(BuildContext context) async {
     displayName: user.displayName,
     bio: "",
     followers: {},
-    following: {}
+    following: {},
   );
 }
 
 Future<Null> _ensureLoggedIn(context) async {
-  user = googleSignIn.currentUser;
-  if (user == null) {
+  googleUser = googleSignIn.currentUser;
+  if (googleUser == null) {
     print('xxxxxxxxxx signInSilently...');
-    user = await googleSignIn.signInSilently();
+    googleUser = await googleSignIn.signInSilently();
   }
-  if (user == null) {
+  if (googleUser == null) {
     print('xxxxxxxxxx signIn...');
-    user = await googleSignIn.signIn();
+    googleUser = await googleSignIn.signIn();
 
     analytics.logLogin();
-    usersDatabaseReference = databaseReference.child('twopoints_userInfos'); // user.id as the node key
-    serviceLocationsDatabaseReference =
-        databaseReference.child('twopoints_serviceLocations');
-    requestsDatabaseReference =
-        databaseReference.child('twopoints_requestLocations');
+    usersDatabaseReference = databaseReference.child('twopoints_userInfos'); // googleUser.id as the node key
+    serviceLocationsDatabaseReference = databaseReference.child('twopoints_serviceLocations');
+    requestsDatabaseReference = databaseReference.child('twopoints_requestLocations');
   }
 
-  print('xxxxxxxxxx finished the sign in. user:' + user.displayName);
+  // TODO: For now, fill in Id only the userId to save a query to the DB
+  currentUserModel = new User(id: googleUser.id, displayName: googleUser.displayName);
 
-  // for debug only:
-  await auth.signOut();
+  print('xxxxxxxxxx finished the sign in. user:' + googleUser.displayName);
 
+  // assume that Firbase-Authenticated(app scope) user already registered in the DB
   if (await auth.currentUser() == null) {
     GoogleSignInAuthentication credentials =
     await googleSignIn.currentUser.authentication;
@@ -144,12 +142,12 @@ Future<Null> _ensureLoggedIn(context) async {
 
     print('xxxxxxxxxx finished auth.signInWithGoogle.');
 
-    tryCreateUserRecord(context);
+    currentUserModel = await tryCreateUserRecord(context);
   }
 
-  usersDatabaseReference = databaseReference.child(user.id);
-  serviceLocationsDatabaseReference = databaseReference.child(user.id).child('twopoints_serviceLocation');
-  requestsDatabaseReference = databaseReference.child(user.id).child('twopoints_requestLocation');
+  usersDatabaseReference = databaseReference.child(googleUser.id);
+  serviceLocationsDatabaseReference = databaseReference.child(googleUser.id).child('twopoints_serviceLocation');
+  requestsDatabaseReference = databaseReference.child(googleUser.id).child('twopoints_requestLocation');
 
   print('xxxxxxxxxx finished _ensureLoggedIn.');
 }

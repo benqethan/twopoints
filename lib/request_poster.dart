@@ -1,28 +1,20 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
-import 'dart:async';
 import 'main.dart';
-import 'dart:io';
-import 'package:image/image.dart' as Im;
-import 'package:path_provider/path_provider.dart';
-import 'dart:math' as Math;
+import 'request_post.dart';
 
 class RequestPoster extends StatefulWidget {
   _RequestPoster createState() => new _RequestPoster();
 }
 
 class _RequestPoster extends State<RequestPoster> {
-  File file;
-  TextEditingController descriptionController = new TextEditingController();
+  RequestPost newRequest = new RequestPost();
   TextEditingController locationController = new TextEditingController();
-
-  bool uploading = false;
-  bool promted = false;
 
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
@@ -61,12 +53,21 @@ class _RequestPoster extends State<RequestPoster> {
   DateTime _toDate = new DateTime.now().add(new Duration(days: 1));
   TimeOfDay _toTime = const TimeOfDay(hour: 19, minute: 30);
 
+  TextEditingController phoneController = new TextEditingController();
+  TextEditingController addressController = new TextEditingController();
+  TextEditingController deliveryitemController = new TextEditingController();
+  TextEditingController weightController = new TextEditingController();
+  TextEditingController priceController = new TextEditingController();
+  TextEditingController notesController = new TextEditingController();
+
   @override
   initState() {
     super.initState();
   }
 
   Widget build(BuildContext context) {
+    // use controller instead of onSaved callback:
+    // https://stackoverflow.com/questions/45240734/flutter-form-data-disappears-when-i-scroll/45242235#45242235
     return new Scaffold(
       appBar: new AppBar(
         title: new Text('Post Delivery Request'),
@@ -86,6 +87,11 @@ class _RequestPoster extends State<RequestPoster> {
                       hintText: 'Enter sender phone#',
                       labelText: 'Phone',
                     ),
+                    inputFormatters: [
+                      new WhitelistingTextInputFormatter(new RegExp(r'^[()\d -]{1,15}$')),
+                    ],
+                    validator: (value) => isValidPhoneNumber(value) ? null : 'Phone number must be entered as number',
+                    controller: phoneController,
                   ),
                   new TextFormField(
                     decoration: const InputDecoration(
@@ -94,6 +100,18 @@ class _RequestPoster extends State<RequestPoster> {
                       labelText: 'Address',
                     ),
                     keyboardType: TextInputType.multiline,
+                    controller: addressController,
+                  ),
+                  new TextFormField(
+                    decoration: const InputDecoration(
+                      icon: const Icon(Icons.explore),
+                      hintText: 'Enter the delivery item',
+                      labelText: 'Delivery Item',
+                    ),
+                    inputFormatters: [
+                      WhitelistingTextInputFormatter.digitsOnly,
+                    ],
+                    controller: deliveryitemController,
                   ),
                   new TextFormField(
                     decoration: const InputDecoration(
@@ -104,6 +122,7 @@ class _RequestPoster extends State<RequestPoster> {
                     inputFormatters: [
                       WhitelistingTextInputFormatter.digitsOnly,
                     ],
+                    controller: weightController,
                   ),
                   new TextFormField(
                     decoration: const InputDecoration(
@@ -112,6 +131,8 @@ class _RequestPoster extends State<RequestPoster> {
                       labelText: 'Offer',
                     ),
                     keyboardType: TextInputType.number,
+                    validator: (value) => double.tryParse(value) == null ? 'Price must be entered as numeric' : null,
+                    controller: priceController,
                   ),
                   new _DateTimePicker(
                     labelText: 'Delivery date range start',
@@ -195,94 +216,60 @@ class _RequestPoster extends State<RequestPoster> {
                       padding: const EdgeInsets.only(left: 40.0, top: 20.0),
                       child: new RaisedButton(
                         child: const Text('Submit'),
-                        onPressed: null,
+                        onPressed: () {postToFirebase(
+//                            fromAddress: addressController.text,
+                            toAddress: addressController.text,
+                            item: deliveryitemController.text,
+                            weight: weightController.text,
+                            price: double.parse(priceController.text),
+                            deliveryDateStart: '',
+                            deliveryDateEnd: '',
+                            sourceHandlingType: _sourceHandlingType,
+                            destHandlingType: _destHandlingType,
+                            notes: notesController.text,
+                            phone: phoneController.text);},
                       )),
                 ],
               ))),
     );
   }
-}
 
-class PostForm extends StatelessWidget {
-  final imageFile;
-  final TextEditingController descriptionController;
-  final TextEditingController locationController;
-  final bool loading;
-  PostForm({this.imageFile, this.descriptionController, this.loading, this.locationController});
 
-  Widget build(BuildContext context) {
-    return new Column(
-      children: <Widget>[
-        loading
-            ? new LinearProgressIndicator()
-            : new Padding(padding: new EdgeInsets.only(top: 0.0)),
-        new Divider(),
-        new Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: <Widget>[
-            new CircleAvatar(
-              backgroundImage: new NetworkImage(currentUserModel.photoUrl),
-            ),
-            new Container(
-              width: 250.0,
-              child: new TextField(
-                controller: descriptionController,
-                decoration: new InputDecoration(
-                    hintText: "Write a caption...", border: InputBorder.none),
-              ),
-            ),
-            new Container(
-              height: 45.0,
-              width: 45.0,
-              child: new AspectRatio(
-                aspectRatio: 487 / 451,
-                child: new Container(
-                  decoration: new BoxDecoration(
-                      image: new DecorationImage(
-                    fit: BoxFit.fill,
-                    alignment: FractionalOffset.topCenter,
-                    image: new FileImage(imageFile),
-                  )),
-                ),
-              ),
-            ),
-          ],
-        ),
-        new Divider(),
+// TODO: improve the query perforance. https://stackoverflow.com/questions/47494373/optimizing-json-querying-performance-in-javascript
+// TODO: consider to use the Firbase Function
+  void postToFirebase(
+      {String userName, String fromLocation, String toLocation, String fromAddress, String toAddress, String item,
+        double price, String deliveryDateStart, String deliveryDateEnd, String notes, String status, String phone,
+        String weight, String sourceHandlingType, String destHandlingType}) async {
+    var reference = FirebaseDatabase.instance.reference().child('twopoints_requests');
 
-        new ListTile(
-          leading: new Icon(Icons.pin_drop),
-          title: new Container(
-            width: 250.0,
-            child: new TextField(
-              controller: locationController,
-              decoration: new InputDecoration(
-                  hintText: "Where was this photo taken?",
-                  border: InputBorder.none),
-            ),
-          ),
-        )
-      ],
-    );
+    reference.push().set({
+      "requstId": 123456,   // TODO
+      "userName": currentUserModel.displayName,     // TODO: use the app userName. But need cost a query or offline cache
+      "fromLocation": {"latitude": 123, "longitude": 456.88},   // TODO
+      "toLocation": {"latitude": 125, "longitude": 458.88},     // TODO
+      "fromAddress": fromAddress,
+      "toAddress": toAddress,
+      "requestTimeStamp": new DateTime.now().toString(),
+      "item":  item,
+      "price": price,
+      "deliveryDateStart": deliveryDateStart,
+      "deliveryDateEnd": deliveryDateEnd,
+      "notes": notes,
+      "status": "pending",
+      "userId": googleSignIn.currentUser.id,
+      "phone": phone,
+      "weight": weight,
+      "sourceHandlingType": sourceHandlingType,
+      "destHandlingType": destHandlingType,
+    });
   }
-}
 
-void postToFirebase(
-    {String mediaUrl, String location, String description}) async {
-  var reference = FirebaseDatabase.instance.reference().child('twopoints_requests');
-
-  reference.push().set({
-    "username": currentUserModel.username,
-    "location": location,
-    "likes": {},
-    "mediaUrl": mediaUrl,
-    "description": description,
-    "ownerId": googleSignIn.currentUser.id,
-    "timestamp": new DateTime.now().toString(),
-  }); // .then((DocumentReference doc) {
-//    String docId = doc.childID;
-//    reference.child(docId).update({"postId": docId});
-//  });
+  isValidPhoneNumber(String input) {
+//    final RegExp regex = new RegExp(r'^\(\d\d\d\)\d\d\d\-\d\d\d\d$');
+//    return regex.hasMatch(input);
+      return true;
+  }
 }
 
 // from https://github.com/flutter/flutter/blob/master/examples/flutter_gallery/lib/demo/material/date_and_time_picker_demo.dart

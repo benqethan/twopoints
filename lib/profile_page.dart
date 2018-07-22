@@ -90,7 +90,7 @@ class _ProfilePage extends State<ProfilePage> {
         .child("items")
         .child(currentUserId)
         .set({
-      "ownerId": profileId,
+//      "userId": profileId,
       "username": currentUserModel.username,
       "userId": currentUserId,
       "type": "follow",
@@ -246,8 +246,8 @@ class _ProfilePage extends State<ProfilePage> {
         List<RequestPost> posts = [];
         var snap = await FirebaseDatabase.instance.reference()
             .child('twopoints_requests')
-            .orderByChild('ownerId').equalTo(profileId)
-//            .where('ownerId', isEqualTo: profileId)
+            .orderByChild('userId').equalTo(profileId)
+//            .where('userId', isEqualTo: profileId)
             .orderByChild("requestTimeStamp")
             .once();
         for (var json in snap.value) {
@@ -463,7 +463,8 @@ class User {
       this.displayName,
       this.bio,
       this.followers,
-      this.following});
+      this.following,
+      this.phone});
 
   final String email;
   final String id;
@@ -473,15 +474,16 @@ class User {
   final String bio;
   final Map followers;
   final Map following;
+  final String phone;
 
   factory User.fromJSON(Map snapshot) {
     return new User(
       email: snapshot['email'],
       username: snapshot['username'],
       photoUrl: snapshot['photoUrl'],
-//      id: snapshot['id'],
       displayName: snapshot['displayName'],
       bio: snapshot['bio'],
+      phone: snapshot['phone'],
     );
   }
 }
