@@ -78,7 +78,7 @@ class _Request extends State<Request> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     String userId = googleSignIn.currentUser.id.toString();
-    var url = 'https://us-central1-two-points.cloudfunctions.net/getRequests?uid=' + userId;
+    var url = 'https://xxx.cloudfunctions.net/getRequests?uid=' + userId;
     var httpClient = new HttpClient();
 
     List<RequestPost> listOfRequests;
